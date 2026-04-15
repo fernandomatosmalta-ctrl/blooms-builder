@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloom's Taxonomy – Learning Objectives Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #840B55; --primary-light: #B56D99;
+      --white: #ffffff; --bg: #fdf6fa;
+      --text: #1a0a12; --text-muted: #6b3a58;
+      --border: #e0b8d0; --focus: #0066ff;
+      --shadow: 0 4px 24px rgba(132,11,85,0.10); --radius: 14px;
+      --l1:#c0392b; --l2:#e67e22; --l3:#c8a800;
+      --l4:#27ae60; --l5:#2980b9; --l6:#8e44ad;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; min-height:100vh; }
+    :focus-visible { outline:3px solid var(--focus); outline-offset:3px; border-radius:4px; }
+
+    /* NAV */
+    nav { background:var(--primary); padding:0 1.5rem; position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,0.18); }
+    .nav-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:60px; gap:1rem; }
+    .nav-logo { font-weight:800; font-size:1.05rem; color:var(--white); letter-spacing:-0.02em; white-space:nowrap; }
+    .nav-logo span { color:#f5c8e0; font-weight:400; }
+    .nav-links { display:flex; gap:0.25rem; list-style:none; }
+    .nav-links a { color:rgba(255,255,255,0.85); text-decoration:none; font-size:0.875rem; font-weight:500; padding:0.4rem 0.75rem; border-radius:8px; transition:background 0.2s; cursor:pointer; }
+    .nav-links a:hover, .nav-links a:focus-visible { background:rgba(255,255,255,0.15); color:var(--white); }
+
+    /* PAGES */
+    .page { display:none; }
+    .page.active { display:block; }
+
+    /* HERO */
+    .hero { background:linear-gradient(135deg,var(--primary) 0%,#5a0839 40%,#3a0225 100%); color:var(--white); padding:4rem 1.5rem 3rem; text-align:center; position:relative; overflow:hidden; }
+    .hero::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+    .hero-badge { display:inline-block; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#f5c8e0; font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:0.35rem 1rem; border-radius:100px; margin-bottom:1.25rem; }
+    .hero h1 { font-size:clamp(1.9rem,5vw,3.2rem); font-weight:900; letter-spacing:-0.03em; line-height:1.1; margin-bottom:1rem; }
+    .hero h1 em { font-style:normal; color:#f5c8e0; }
+    .hero p { font-size:clamp(0.95rem,2vw,1.1rem); opacity:0.9; max-width:600px; margin:0 auto 2rem; }
+    .hero-buttons { display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; margin-bottom:0.5rem; }
+    .hero-cta { display:inline-flex; align-items:center; gap:0.5rem; background:var(--white); color:var(--primary); font-weight:700; font-size:0.95rem; padding:0.8rem 1.75rem; border-radius:100px; text-decoration:none; border:none; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; box-shadow:0 4px 20px rgba(0,0,0,0.2); font-family:'Inter',sans-serif; }
+    .hero-cta:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,0.25); }
+    .hero-cta-outline { background:transparent; color:var(--white); border:2px solid rgba(255,255,255,0.5); font-size:0.85rem; padding:0.65rem 1.25rem; }
+    .hero-cta-outline:hover { background:rgba(255,255,255,0.1); }
+
+    /* BIG PYRAMID */
+    .pyramid-home-section { background:linear-gradient(180deg,#f5e8f1 0%,#efe0ea 100%); padding:3.5rem 1.5rem; }
+    .pyramid-home-inner { max-width:680px; margin:0 auto; }
+    .pyramid-container { width:100%; }
+    .pyramid-level { display:flex; align-items:center; justify-content:center; color:white; font-weight:700; margin:0 auto 3px; border-radius:6px; cursor:pointer; transition:filter 0.2s,transform 0.15s; text-align:center; user-select:none; }
+    .pyramid-level:hover { filter:brightness(1.12); transform:scaleX(1.015); }
+    .pyramid-level:focus-visible { outline:3px solid var(--focus); }
+    /* large */
+    .pyramid-lg .pyramid-level { font-size:clamp(0.8rem,1.8vw,1rem); height:42px; }
+    .pyramid-lg .pl-1 { width:28%; background:var(--l6); }
+    .pyramid-lg .pl-2 { width:42%; background:var(--l5); }
+    .pyramid-lg .pl-3 { width:56%; background:var(--l4); }
+    .pyramid-lg .pl-4 { width:70%; background:var(--l3); color:#333; }
+    .pyramid-lg .pl-5 { width:84%; background:var(--l2); }
+    .pyramid-lg .pl-6 { width:100%; background:var(--l1); }
+    /* small */
+    .pyramid-sm .pyramid-level { font-size:0.68rem; height:25px; font-weight:600; }
+    .pyramid-sm .pl-1 { width:28%; background:var(--l6); }
+    .pyramid-sm .pl-2 { width:42%; background:var(--l5); }
+    .pyramid-sm .pl-3 { width:56%; background:var(--l4); }
+    .pyramid-sm .pl-4 { width:70%; background:var(--l3); color:#333; }
+    .pyramid-sm .pl-5 { width:84%; background:var(--l2); }
+    .pyramid-sm .pl-6 { width:100%; background:var(--l1); }
+    .pyramid-label { text-align:center; font-size:0.7rem; color:var(--text-muted); margin-top:5px; }
+
+    /* WHY */
+    .why-section { max-width:1100px; margin:0 auto; padding:3.5rem 1.5rem; }
+    .section-header { text-align:center; margin-bottom:2.5rem; }
+    .section-label { display:inline-block; background:#f5e6f0; color:var(--primary); font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:0.3rem 0.9rem; border-radius:100px; margin-bottom:0.75rem; }
+    .section-header h2 { font-size:clamp(1.6rem,3.5vw,2.3rem); font-weight:800; letter-spacing:-0.03em; color:var(--primary); }
+    .section-header p { color:var(--text-muted); max-width:560px; margin:0.6rem auto 0; font-size:0.95rem; }
+    .cards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.25rem; }
+    .info-card { background:var(--white); border-radius:var(--radius); padding:1.75rem; border:1px solid var(--border); box-shadow:var(--shadow); position:relative; overflow:hidden; }
+    .info-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg,var(--primary),var(--primary-light)); }
+    .card-icon { width:44px; height:44px; background:#f5e6f0; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:0.85rem; }
+    .info-card h3 { font-size:1rem; font-weight:700; color:var(--primary); margin-bottom:0.4rem; }
+    .info-card p { color:var(--text-muted); font-size:0.875rem; }
+
+    /* BUILDER LAYOUT */
+    .builder-layout { max-width:1100px; margin:0 auto; padding:2rem 1.5rem; display:grid; grid-template-columns:1fr 210px; gap:1.75rem; align-items:start; }
+    .builder-main { min-width:0; }
+    .builder-sidebar { position:sticky; top:76px; }
+    .sidebar-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:1rem; }
+    .sidebar-card h4 { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--primary); margin-bottom:0.75rem; }
+    .sidebar-learn-more { display:flex; align-items:center; gap:0.35rem; color:var(--primary-light); font-size:0.73rem; font-weight:600; text-decoration:none; margin-top:0.65rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid var(--border); background:#fdf6fa; transition:background 0.2s; width:100%; }
+    .sidebar-learn-more:hover { background:#f5e6f0; color:var(--primary); }
+    .sidebar-learn-more svg { flex-shrink:0; }
+
+    /* BUILDER HEADER */
+    .builder-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; }
+    .builder-header h2 { font-size:1.6rem; font-weight:800; color:var(--primary); letter-spacing:-0.02em; }
+
+    /* BUTTONS */
+    .btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.55rem 1.1rem; border-radius:100px; font-size:0.85rem; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; }
+    .btn-primary { background:var(--primary); color:var(--white); }
+    .btn-primary:hover { background:#6a0944; transform:translateY(-1px); }
+    .btn-ghost { background:var(--white); color:var(--text-muted); border:1px solid var(--border); }
+    .btn-ghost:hover { background:#f9f0f5; color:var(--primary); }
+    .btn-danger { background:#fff0f0; color:#c0392b; border:1px solid #f5c6c6; }
+    .btn-danger:hover { background:#ffe0e0; }
+
+    /* FORM */
+    .form-card { background:var(--white); border-radius:var(--radius); padding:1.75rem; border:1px solid var(--border); box-shadow:var(--shadow); margin-bottom:1.5rem; }
+    .form-card h3 { font-size:1rem; font-weight:700; color:var(--primary); margin-bottom:1.25rem; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-group { display:flex; flex-direction:column; gap:0.35rem; margin-bottom:0.875rem; }
+    .form-group label { font-size:0.8rem; font-weight:600; color:var(--text-muted); letter-spacing:0.02em; }
+    .form-group select, .form-group input { font-family:'Inter',sans-serif; font-size:0.9rem; padding:0.6rem 0.85rem; border:1.5px solid var(--border); border-radius:10px; background:var(--white); color:var(--text); transition:border-color 0.2s; width:100%; }
+    .form-group select:focus, .form-group input:focus { outline:none; border-color:var(--focus); box-shadow:0 0 0 3px rgba(0,102,255,0.15); }
+
+    /* OBJECTIVE COMPOSER */
+    .composer-wrap { border:1.5px solid var(--border); border-radius:10px; padding:0.65rem 0.85rem; background:var(--white); min-height:52px; transition:border-color 0.2s,box-shadow 0.2s; cursor:text; display:flex; align-items:flex-start; flex-wrap:wrap; gap:4px; }
+    .composer-wrap:focus-within { border-color:var(--focus); box-shadow:0 0 0 3px rgba(0,102,255,0.15); }
+    .obj-prefix { font-size:0.9rem; color:var(--text-muted); line-height:1.7; white-space:nowrap; flex-shrink:0; }
+    .obj-verb-tag { display:inline-flex; align-items:center; gap:3px; background:#f5e6f0; color:var(--primary); font-weight:800; font-size:0.9rem; padding:1px 8px 1px 10px; border-radius:6px; line-height:1.7; white-space:nowrap; }
+    .verb-remove-btn { background:none; border:none; cursor:pointer; font-size:0.65rem; color:var(--primary-light); padding:0; line-height:1; display:flex; align-items:center; }
+    .verb-remove-btn:hover { color:var(--primary); }
+    .obj-rest-input { font-family:'Inter',sans-serif; font-size:0.9rem; border:none; outline:none; flex:1; min-width:100px; color:var(--text); background:transparent; padding:0; line-height:1.7; }
+    .obj-rest-input::placeholder { color:#c4a0b5; }
+
+    /* VERBS */
+    .verb-chips { display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.4rem; }
+    .verb-chip { background:#f5e6f0; color:var(--primary); font-size:0.73rem; font-weight:600; padding:0.22rem 0.6rem; border-radius:100px; cursor:pointer; border:1px solid var(--border); transition:all 0.15s; font-family:'Inter',sans-serif; }
+    .verb-chip:hover, .verb-chip.selected { background:var(--primary); color:var(--white); border-color:var(--primary); }
+
+    .level-desc { display:none; background:#fdf6fa; border:1px solid var(--border); border-radius:10px; padding:0.75rem 1rem; margin-bottom:1rem; font-size:0.85rem; color:var(--text-muted); }
+    .form-actions { display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.5rem; }
+
+    /* OBJ LIST */
+    .objectives-list { display:flex; flex-direction:column; gap:1rem; }
+    .obj-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); overflow:hidden; transition:transform 0.2s; }
+    .obj-card:hover { transform:translateY(-2px); }
+    .obj-header { display:flex; align-items:center; gap:0.65rem; padding:0.875rem 1.1rem; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    .level-badge { font-size:0.68rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.22rem 0.7rem; border-radius:100px; color:white; white-space:nowrap; }
+    .delivery-badge { font-size:0.68rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; padding:0.22rem 0.7rem; border-radius:100px; background:#f5e6f0; color:var(--primary); border:1px solid var(--border); }
+    .obj-num { font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-left:auto; }
+    .obj-body { padding:1.1rem 1.25rem; }
+    .obj-text { font-size:0.975rem; line-height:1.65; margin-bottom:1rem; }
+    .obj-text .t-prefix { color:var(--text-muted); }
+    .obj-text .t-verb { font-weight:800; color:var(--primary); }
+    .obj-text .t-rest { color:var(--text); }
+    .recommendations { background:#fdf6fa; border:1px solid var(--border); border-radius:10px; padding:0.875rem 1.1rem; }
+    .recommendations h4 { font-size:0.72rem; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--primary-light); margin-bottom:0.6rem; }
+    .rec-list { list-style:none; display:flex; flex-direction:column; gap:0.35rem; }
+    .rec-list li { display:flex; align-items:flex-start; gap:0.45rem; font-size:0.85rem; color:var(--text-muted); }
+    .rec-list li::before { content:'→'; color:var(--primary-light); font-weight:700; flex-shrink:0; margin-top:0.1em; }
+    .obj-footer { display:flex; gap:0.5rem; padding:0.65rem 1.1rem; border-top:1px solid var(--border); background:#fdf6fa; }
+
+    /* EMPTY */
+    .empty-state { text-align:center; padding:3.5rem 2rem; color:var(--text-muted); }
+    .empty-state .ei { font-size:3rem; margin-bottom:0.875rem; opacity:0.5; }
+    .empty-state h3 { color:var(--primary); margin-bottom:0.4rem; }
+
+    /* AUTOSAVE */
+    .autosave-bar { position:fixed; bottom:1.25rem; right:1.25rem; background:var(--white); border:1px solid var(--border); border-radius:100px; padding:0.45rem 0.875rem; font-size:0.78rem; font-weight:600; color:var(--text-muted); box-shadow:var(--shadow); display:flex; align-items:center; gap:0.35rem; opacity:0; transition:opacity 0.4s; z-index:200; pointer-events:none; }
+    .autosave-bar.show { opacity:1; }
+    .autosave-dot { width:7px; height:7px; border-radius:50%; background:#27ae60; }
+
+    /* MODAL */
+    .modal-overlay { position:fixed; inset:0; background:rgba(26,10,18,0.7); backdrop-filter:blur(4px); z-index:500; display:flex; align-items:center; justify-content:center; padding:1rem; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+    .modal-overlay.show { opacity:1; pointer-events:all; }
+    .modal { background:var(--white); border-radius:18px; padding:2rem; max-width:460px; width:100%; box-shadow:0 24px 80px rgba(0,0,0,0.3); }
+    .modal h3 { font-size:1.2rem; font-weight:800; color:var(--primary); margin-bottom:0.5rem; }
+    .modal p { color:var(--text-muted); font-size:0.88rem; margin-bottom:1.25rem; }
+    .modal-actions { display:flex; gap:0.75rem; flex-wrap:wrap; }
+
+    /* RESPONSIVE */
+    @media(max-width:860px){
+      .builder-layout { grid-template-columns:1fr; }
+      .builder-sidebar { position:static; }
+    }
+    @media(max-width:640px){
+      .form-row { grid-template-columns:1fr; }
+      .nav-links { display:none; }
+      .builder-header { flex-direction:column; align-items:flex-start; }
+    }
+    @media(max-width:480px){
+      .hero { padding:2.5rem 1rem 2rem; }
+      .form-card { padding:1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav role="navigation" aria-label="Main navigation">
+  <div class="nav-inner">
+    <span class="nav-logo">Bloom's <span>Builder</span></span>
+    <ul class="nav-links" role="list">
+      <li><a onclick="showPage('home')" tabindex="0" role="button">Home</a></li>
+      <li><a onclick="showPage('builder')" tabindex="0" role="button">Builder</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ════════════════════ HOME ════════════════════ -->
+<div id="page-home" class="page active" role="main">
+
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-badge" aria-hidden="true">Learning Design Tool</div>
+    <h1 id="hero-heading">Write <em>Better</em> Learning<br>Objectives — Every Time</h1>
+    <p>A free, guided tool to help Business Owners, Subject Matter Experts, and L&amp;D teams craft clear, measurable learning objectives aligned to Bloom's Taxonomy.</p>
+    <div class="hero-buttons">
+      <button class="hero-cta" onclick="showPage('builder')">Start Building ↗</button>
+      <a class="hero-cta hero-cta-outline"
+         href="https://www.youtube.com/watch?v=ksqNcBhDNXA"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Watch: What is Bloom's Taxonomy? – YouTube video, opens in new tab">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+        Watch: What is Bloom's Taxonomy?
+      </a>
+    </div>
+  </section>
+
+  <!-- BIG PYRAMID -->
+  <section class="pyramid-home-section" aria-labelledby="pyramid-heading">
+    <div class="pyramid-home-inner">
+      <div class="section-header">
+        <span class="section-label" aria-hidden="true">The Framework</span>
+        <h2 id="pyramid-heading">Bloom's Taxonomy – Six Levels of Learning</h2>
+        <p>From remembering basic facts to creating entirely new work. Click any level to open the Builder for that level.</p>
+      </div>
+      <div class="pyramid-container pyramid-lg" role="list" aria-label="Bloom's Taxonomy levels — click any level to start building">
+        <div class="pyramid-level pl-1" role="listitem" tabindex="0" onclick="jumpToBuilder(6)" onkeydown="if(event.key==='Enter')jumpToBuilder(6)" aria-label="Create – highest level. Click to build.">🏆 Create</div>
+        <div class="pyramid-level pl-2" role="listitem" tabindex="0" onclick="jumpToBuilder(5)" onkeydown="if(event.key==='Enter')jumpToBuilder(5)" aria-label="Evaluate. Click to build.">⚖️ Evaluate</div>
+        <div class="pyramid-level pl-3" role="listitem" tabindex="0" onclick="jumpToBuilder(4)" onkeydown="if(event.key==='Enter')jumpToBuilder(4)" aria-label="Analyse. Click to build.">🔍 Analyse</div>
+        <div class="pyramid-level pl-4" role="listitem" tabindex="0" onclick="jumpToBuilder(3)" onkeydown="if(event.key==='Enter')jumpToBuilder(3)" aria-label="Apply. Click to build.">⚙️ Apply</div>
+        <div class="pyramid-level pl-5" role="listitem" tabindex="0" onclick="jumpToBuilder(2)" onkeydown="if(event.key==='Enter')jumpToBuilder(2)" aria-label="Understand. Click to build.">💡 Understand</div>
+        <div class="pyramid-level pl-6" role="listitem" tabindex="0" onclick="jumpToBuilder(1)" onkeydown="if(event.key==='Enter')jumpToBuilder(1)" aria-label="Remember – foundation. Click to build.">📚 Remember</div>
+        <p class="pyramid-label" aria-hidden="true">← Foundation · Highest Complexity →</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section class="why-section" aria-labelledby="why-heading">
+    <div class="section-header">
+      <span class="section-label" aria-hidden="true">Why It Matters</span>
+      <h2 id="why-heading">Clear Goals Change Everything</h2>
+      <p>When learning objectives are vague, training fails silently. When they are precise, you can measure, improve, and prove value.</p>
+    </div>
+    <div class="cards-grid" role="list">
+      <article class="info-card" role="listitem">
+        <div class="card-icon" aria-hidden="true">🎯</div>
+        <h3>For Business Owners</h3>
+        <p>You invest in training — but how do you know it worked? Clear objectives tied to Bloom's levels give you measurable outcomes so every learning pound spent is justified and tracked.</p>
+      </article>
+      <article class="info-card" role="listitem">
+        <div class="card-icon" aria-hidden="true">🧠</div>
+        <h3>For Subject Matter Experts (SMEs)</h3>
+        <p>You know your content deeply. This tool helps you translate that expertise into learning goals that are teachable, testable, and aligned to how people actually learn — step by step.</p>
+      </article>
+      <article class="info-card" role="listitem">
+        <div class="card-icon" aria-hidden="true">📐</div>
+        <h3>For L&amp;D Teams</h3>
+        <p>Bloom's Taxonomy gives you a shared language with stakeholders. Use it to design assessments, activities, and content that truly match what learners are expected to do after training.</p>
+      </article>
+    </div>
+  </section>
+
+  <section style="text-align:center;padding:3.5rem 1.5rem;background:var(--white);" aria-labelledby="cta-h">
+    <h2 id="cta-h" style="font-size:1.6rem;font-weight:800;color:var(--primary);margin-bottom:0.65rem;">Ready to Write Better Objectives?</h2>
+    <p style="color:var(--text-muted);margin-bottom:1.5rem;max-width:480px;margin-left:auto;margin-right:auto;font-size:0.95rem;">Choose a level, pick a verb, write the objective, and export a beautiful PDF report.</p>
+    <button class="btn btn-primary" style="font-size:0.95rem;padding:0.8rem 1.75rem;" onclick="showPage('builder')">Open the Builder →</button>
+  </section>
+
+</div>
+
+<!-- ════════════════════ BUILDER ════════════════════ -->
+<div id="page-builder" class="page" role="main">
+  <div class="builder-layout">
+
+    <div class="builder-main">
+      <div class="builder-header">
+        <div>
+          <h2>Learning Objectives Builder</h2>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.2rem;">Your work is saved automatically in your browser.</p>
+        </div>
+        <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
+          <button class="btn btn-ghost" onclick="clearAll()">🗑 Clear All</button>
+          <button class="btn btn-primary" onclick="openExportModal()">📄 Export PDF</button>
+        </div>
+      </div>
+
+      <!-- COURSE INFO -->
+      <div class="form-card" aria-labelledby="ci-heading">
+        <h3 id="ci-heading">📋 Course Information</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="course-title">Course / Programme Title</label>
+            <input type="text" id="course-title" placeholder="e.g. Introduction to Data Privacy" oninput="autoSave()" />
+          </div>
+          <div class="form-group">
+            <label for="course-audience">Target Audience</label>
+            <input type="text" id="course-audience" placeholder="e.g. Mid-level managers" oninput="autoSave()" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="delivery-mode">Delivery Mode <span style="color:#c0392b;" aria-hidden="true">*</span></label>
+            <select id="delivery-mode" onchange="autoSave()" aria-required="true">
+              <option value="">— Select mode for this course —</option>
+              <option value="elearning">💻 E-Learning</option>
+              <option value="classroom">🏫 Classroom</option>
+              <option value="virtual">🖥️ Virtual (Live Online)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="course-date">Date</label>
+            <input type="date" id="course-date" oninput="autoSave()" />
+          </div>
+        </div>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:-0.3rem;">ℹ️ The delivery mode applies to <strong>all objectives</strong> in this course and determines the recommended activities.</p>
+      </div>
+
+      <!-- ADD OBJECTIVE -->
+      <div class="form-card" aria-labelledby="ao-heading">
+        <h3 id="ao-heading">➕ Add a Learning Objective</h3>
+
+        <div class="form-group" style="max-width:340px;">
+          <label for="bloom-level">Bloom's Taxonomy Level <span style="color:#c0392b;" aria-hidden="true">*</span></label>
+          <select id="bloom-level" onchange="updateVerbs()" aria-required="true">
+            <option value="">— Select a level —</option>
+            <option value="1">Level 1 · Remember</option>
+            <option value="2">Level 2 · Understand</option>
+            <option value="3">Level 3 · Apply</option>
+            <option value="4">Level 4 · Analyse</option>
+            <option value="5">Level 5 · Evaluate</option>
+            <option value="6">Level 6 · Create</option>
+          </select>
+        </div>
+
+        <div id="level-desc" class="level-desc" aria-live="polite"></div>
+
+        <div class="form-group" id="verb-group" style="display:none;">
+          <label>Suggested Bloom's Verbs <span style="font-weight:400;color:var(--text-muted);">(click one to add it)</span></label>
+          <div class="verb-chips" id="verb-chips" role="list" aria-label="Suggested verbs for selected level"></div>
+        </div>
+
+        <div class="form-group" id="composer-group" style="display:none;">
+          <label id="comp-label">Your Learning Objective</label>
+          <div class="composer-wrap" id="composer-wrap" onclick="document.getElementById('obj-rest').focus()" role="group" aria-labelledby="comp-label">
+            <span class="obj-prefix">By the end of this course, learners will be able to</span>
+            <span id="verb-tag-slot"></span>
+            <input type="text" id="obj-rest" class="obj-rest-input"
+                   placeholder="…complete your objective here"
+                   aria-label="Completion of the learning objective after the verb"
+                   oninput="autoSave()" />
+          </div>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem;">Select a verb above, then describe what learners will do.</p>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="addObjective()">Add Objective</button>
+          <button class="btn btn-ghost" onclick="resetForm()">Reset</button>
+        </div>
+      </div>
+
+      <!-- LIST -->
+      <div aria-live="polite">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--primary);">
+            Your Objectives <span id="obj-count" style="font-weight:400;font-size:0.85rem;color:var(--text-muted);"></span>
+          </h3>
+        </div>
+        <div id="objectives-list" class="objectives-list"></div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="builder-sidebar" aria-label="Bloom's Taxonomy quick reference">
+      <div class="sidebar-card">
+        <h4>Bloom's Taxonomy</h4>
+        <div class="pyramid-container pyramid-sm" role="list" aria-label="Bloom's levels – click to select">
+          <div class="pyramid-level pl-1" role="listitem" tabindex="0" onclick="setLevel(6)" onkeydown="if(event.key==='Enter')setLevel(6)" aria-label="Create – Level 6">🏆 Create</div>
+          <div class="pyramid-level pl-2" role="listitem" tabindex="0" onclick="setLevel(5)" onkeydown="if(event.key==='Enter')setLevel(5)" aria-label="Evaluate – Level 5">⚖️ Evaluate</div>
+          <div class="pyramid-level pl-3" role="listitem" tabindex="0" onclick="setLevel(4)" onkeydown="if(event.key==='Enter')setLevel(4)" aria-label="Analyse – Level 4">🔍 Analyse</div>
+          <div class="pyramid-level pl-4" role="listitem" tabindex="0" onclick="setLevel(3)" onkeydown="if(event.key==='Enter')setLevel(3)" aria-label="Apply – Level 3">⚙️ Apply</div>
+          <div class="pyramid-level pl-5" role="listitem" tabindex="0" onclick="setLevel(2)" onkeydown="if(event.key==='Enter')setLevel(2)" aria-label="Understand – Level 2">💡 Understand</div>
+          <div class="pyramid-level pl-6" role="listitem" tabindex="0" onclick="setLevel(1)" onkeydown="if(event.key==='Enter')setLevel(1)" aria-label="Remember – Level 1">📚 Remember</div>
+          <p class="pyramid-label" aria-hidden="true">Foundation → Highest</p>
+        </div>
+        <a class="sidebar-learn-more"
+           href="https://www.youtube.com/watch?v=ksqNcBhDNXA"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Watch: What is Bloom's Taxonomy? – YouTube video, opens in new tab">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+          Watch: What is Bloom's Taxonomy?
+        </a>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- Clear All Confirmation Banner -->
+<div id="clear-confirm" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:300; background:#fff; border-top:2px solid var(--border); box-shadow:0 -4px 24px rgba(132,11,85,0.12); padding:1rem 1.5rem; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap;">
+  <p style="font-size:0.9rem; font-weight:600; color:var(--text); margin:0;">⚠️ Delete <strong>all objectives</strong>? This cannot be undone.</p>
+  <div style="display:flex; gap:0.5rem;">
+    <button class="btn btn-danger" onclick="clearAllConfirmed()" aria-label="Confirm delete all objectives">Yes, delete all</button>
+    <button class="btn btn-ghost" onclick="clearAllCancelled()" aria-label="Cancel, keep objectives">Cancel</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="export-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-h">
+  <div class="modal">
+    <h3 id="modal-h">📄 Export to PDF</h3>
+    <p>Your report will open in a new window. When it opens, your browser's <strong>Print dialogue</strong> will appear — choose <strong>"Save as PDF"</strong> as the destination to download your report. Make sure pop-ups are allowed for this page.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="pdf-btn" onclick="generatePDF()">⬇ Download PDF</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="autosave-bar" id="autosave-bar" aria-live="polite" aria-label="Auto-save status">
+  <div class="autosave-dot" aria-hidden="true"></div> Saved
+</div>
+
+<script>
+/* ═══════════════════ DATA ═══════════════════ */
+const BLOOMS = {
+  1:{ name:'Remember', colour:'#c0392b', desc:'📚 Recall facts and basic concepts. Learners retrieve relevant knowledge from long-term memory.',
+      verbs:['Define','Describe','Identify','Label','List','Match','Name','Recall','Recognise','Reproduce','State','Outline'],
+      recs:{ elearning:['Knowledge-check quizzes with immediate feedback','Flashcard activities','Drag-and-drop matching exercises','Glossary exploration modules','Short-answer recall prompts'],
+             classroom:['Closed-book quizzes','Think-Pair-Share recall activities','Concept mapping in pairs','Verbal Q&A warm-ups','Flashcard peer-review games'],
+             virtual:['Live poll quizzes via Mentimeter or Slido','Breakout room recall challenges','Chat waterfall exercises','Annotation on shared slides','Virtual flashcard tools'] }},
+  2:{ name:'Understand', colour:'#e67e22', desc:'💡 Explain ideas or concepts in your own words. Learners interpret and classify information.',
+      verbs:['Classify','Compare','Explain','Illustrate','Interpret','Paraphrase','Predict','Summarise','Translate','Discuss','Extend','Infer'],
+      recs:{ elearning:['Scenario-based reflections with guided questions','Concept explanation videos with comprehension checks','Compare-and-contrast interactive diagrams','Animated explainers with short summaries','Discussion forums with guided prompts'],
+             classroom:['Peer teaching activities','Concept cartoons for discussion','Jigsaw reading and explanation tasks','Fishbowl debates on key ideas','Mind mapping in small groups'],
+             virtual:['Virtual whiteboard concept mapping (Miro, FigJam)','Breakout discussions with report-back','Live annotation of diagrams','Collaborative Google Slides summaries','Chat explanations and peer responses'] }},
+  3:{ name:'Apply', colour:'#c8a800', desc:'⚙️ Use information in new situations. Learners execute or implement procedures.',
+      verbs:['Apply','Calculate','Carry out','Demonstrate','Execute','Implement','Operate','Practise','Solve','Use','Complete','Show'],
+      recs:{ elearning:['Branching scenario simulations','Software simulations with guided tasks','Step-by-step guided practice exercises','Case studies with decision points','Job aids applied to real-world scenarios'],
+             classroom:['Role-play exercises','Case study workshops','Problem-solving lab tasks','Group projects using real data','Demonstration followed by individual practice'],
+             virtual:['Screen-share demos and guided practice','Virtual labs or simulations','Real-time problem-solving in breakout rooms','Live case study analysis with shared documents','Tool-based exercises with screen observation'] }},
+  4:{ name:'Analyse', colour:'#27ae60', desc:'🔍 Break material into parts and explore how they are connected.',
+      verbs:['Analyse','Break down','Compare','Contrast','Differentiate','Distinguish','Examine','Organise','Relate','Attribute','Deconstruct','Investigate'],
+      recs:{ elearning:['Interactive case studies with analysis prompts','Root-cause analysis simulations','Data interpretation exercises','Comparative infographic activities','Structured reflection journals with guiding questions'],
+             classroom:['Case study deep-dives in small groups','Fishbone/Ishikawa diagram exercises','Debate activities on competing approaches','SWOT analysis workshops','Data-driven problem-solving tasks'],
+             virtual:['Shared analysis of real-world datasets','Breakout group SWOT/PEST activities','Virtual fishbone diagramming (Miro)','Annotated document review with discussion','Live expert Q&A with structured analysis'] }},
+  5:{ name:'Evaluate', colour:'#2980b9', desc:'⚖️ Justify a decision or course of action using criteria and standards.',
+      verbs:['Appraise','Argue','Assess','Critique','Defend','Judge','Justify','Prioritise','Rate','Support','Value','Validate'],
+      recs:{ elearning:['Judgment-based branching scenarios','Peer review activities with rubrics','Decision-justification reflections','Evaluation checklists on real examples','Video-based critique exercises'],
+             classroom:['Structured debates and deliberation','Peer feedback with evaluation criteria','Panel review simulations','Ethics case discussions','Performance review role plays'],
+             virtual:['Live panel critique sessions','Digital peer review using shared docs','Breakout argumentation and report-back','Online evaluation rubric tasks','Expert critique Q&A sessions'] }},
+  6:{ name:'Create', colour:'#8e44ad', desc:'🏆 Produce new or original work. Learners design, construct, or develop something novel.',
+      verbs:['Assemble','Build','Compose','Construct','Design','Develop','Formulate','Generate','Plan','Produce','Write','Devise'],
+      recs:{ elearning:['Portfolio creation projects','Guided design challenges','Storyboarding or scenario authoring tasks','Template-based resource creation activities','Capstone project with peer review'],
+             classroom:['Project-based learning (PBL)','Hackathon-style challenges','Product prototype workshops','Campaign or proposal design tasks','Group presentations of original solutions'],
+             virtual:['Collaborative document or slide creation','Virtual design sprints','Remote hackathons with shared tools','Digital portfolio creation','Co-creation of guides or frameworks via shared tools'] }},
+};
+
+/* ═══════════════════ STATE ═══════════════════ */
+let objectives = [];
+let selectedVerb = '';
+let saveTimer;
+
+/* ═══════════════════ INIT ═══════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  try { objectives = JSON.parse(localStorage.getItem('blooms_objectives') || '[]'); } catch(e){ objectives=[]; }
+  const inf = (() => { try{ return JSON.parse(localStorage.getItem('blooms_course')||'{}'); }catch(e){ return {}; } })();
+  if (inf.title)    document.getElementById('course-title').value    = inf.title;
+  if (inf.audience) document.getElementById('course-audience').value = inf.audience;
+  if (inf.delivery) document.getElementById('delivery-mode').value   = inf.delivery;
+  document.getElementById('course-date').value = inf.date || new Date().toISOString().split('T')[0];
+  renderObjectives();
+});
+
+/* ═══════════════════ NAV ═══════════════════ */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function jumpToBuilder(level){
+  showPage('builder');
+  setTimeout(()=>{ setLevel(level); },120);
+}
+function setLevel(level){
+  document.getElementById('bloom-level').value = level;
+  updateVerbs();
+  document.getElementById('bloom-level').focus();
+}
+
+/* ═══════════════════ VERBS ═══════════════════ */
+function updateVerbs(){
+  const level = parseInt(document.getElementById('bloom-level').value);
+  const descEl = document.getElementById('level-desc');
+  const vg = document.getElementById('verb-group');
+  const cg = document.getElementById('composer-group');
+  selectedVerb = '';
+  document.getElementById('verb-tag-slot').innerHTML = '';
+  document.getElementById('obj-rest').value = '';
+  if (!level){ descEl.style.display='none'; vg.style.display='none'; cg.style.display='none'; return; }
+  const d = BLOOMS[level];
+  descEl.textContent = d.desc; descEl.style.display='block';
+  vg.style.display='block'; cg.style.display='block';
+  const chips = document.getElementById('verb-chips');
+  chips.innerHTML = '';
+  d.verbs.forEach(v=>{
+    const c = document.createElement('button');
+    c.className='verb-chip'; c.textContent=v; c.type='button';
+    c.setAttribute('role','listitem');
+    c.setAttribute('aria-label','Select verb: '+v);
+    c.addEventListener('click',()=>selectVerb(v,chips));
+    chips.appendChild(c);
+  });
+}
+
+function selectVerb(verb, chips){
+  selectedVerb = verb;
+  chips.querySelectorAll('.verb-chip').forEach(c=>c.classList.remove('selected'));
+  [...chips.querySelectorAll('.verb-chip')].find(c=>c.textContent===verb)?.classList.add('selected');
+  document.getElementById('verb-tag-slot').innerHTML =
+    `<span class="obj-verb-tag" aria-label="Selected verb: ${esc(verb)}">${esc(verb)}<button class="verb-remove-btn" type="button" onclick="clearVerb()" aria-label="Remove verb">✕</button></span>`;
+  document.getElementById('obj-rest').focus();
+}
+
+function clearVerb(){
+  selectedVerb='';
+  document.getElementById('verb-tag-slot').innerHTML='';
+  document.getElementById('verb-chips').querySelectorAll('.verb-chip').forEach(c=>c.classList.remove('selected'));
+}
+
+/* ═══════════════════ ADD OBJECTIVE ═══════════════════ */
+function showFormError(msg){
+  let el = document.getElementById('form-error');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'form-error';
+    el.setAttribute('role','alert');
+    el.style.cssText='background:#fff0f0;border:1.5px solid #f5c6c6;color:#c0392b;border-radius:10px;padding:0.6rem 1rem;font-size:0.875rem;font-weight:600;margin-bottom:0.75rem;';
+    const actions = document.querySelector('.form-actions');
+    actions.parentNode.insertBefore(el, actions);
+  }
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+  setTimeout(()=>{ el.style.display='none'; }, 4000);
+}
+
+function addObjective(){
+  const level    = parseInt(document.getElementById('bloom-level').value);
+  const delivery = document.getElementById('delivery-mode').value;
+  const rest     = document.getElementById('obj-rest').value.trim();
+  if (!delivery){ showFormError('Please select a delivery mode in the Course Information section above.'); return; }
+  if (!level)   { showFormError("Please select a Bloom's Taxonomy level."); return; }
+  if (!selectedVerb){ showFormError('Please click one of the suggested verbs to add it to your objective.'); return; }
+  if (!rest)    { showFormError('Please complete the objective text after the verb.'); return; }
+  objectives.push({ id:Date.now(), level, delivery, verb:selectedVerb, rest, created:new Date().toISOString() });
+  renderObjectives(); autoSave(); resetForm();
+}
+
+/* ═══════════════════ RENDER ═══════════════════ */
+function renderObjectives(){
+  const list  = document.getElementById('objectives-list');
+  const count = document.getElementById('obj-count');
+  count.textContent = `(${objectives.length} objective${objectives.length!==1?'s':''})`;
+  if (!objectives.length){
+    list.innerHTML=`<div class="empty-state" role="status"><div class="ei" aria-hidden="true">🎯</div><h3>No objectives yet</h3><p>Use the form above to add your first learning objective.</p></div>`;
+    return;
+  }
+  list.innerHTML='';
+  objectives.forEach((obj,idx)=>{
+    const d = BLOOMS[obj.level];
+    const recs = d.recs[obj.delivery]||[];
+    const dl = {elearning:'💻 E-Learning',classroom:'🏫 Classroom',virtual:'🖥️ Virtual'}[obj.delivery]||obj.delivery;
+    const card = document.createElement('article');
+    card.className='obj-card';
+    card.innerHTML=`
+      <div class="obj-header">
+        <span class="level-badge" style="background:${d.colour}">L${obj.level} · ${d.name}</span>
+        <span class="delivery-badge">${dl}</span>
+        <span class="obj-num" aria-hidden="true">#${idx+1}</span>
+      </div>
+      <div class="obj-body">
+        <p class="obj-text"><span class="t-prefix">By the end of this course, learners will be able to </span><span class="t-verb">${esc(obj.verb)}</span><span class="t-rest"> ${esc(obj.rest)}</span></p>
+        <div class="recommendations"><h4>Recommended Activities &amp; Exercises</h4><ul class="rec-list">${recs.map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>
+      </div>
+      <div class="obj-footer"><button class="btn btn-danger" onclick="deleteObjective(${obj.id})">🗑 Delete</button></div>`;
+    list.appendChild(card);
+  });
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ═══════════════════ DELETE / CLEAR ═══════════════════ */
+function deleteObjective(id){ objectives=objectives.filter(o=>o.id!==id); renderObjectives(); autoSave(); }
+function clearAll(){
+  if(!objectives.length) return;
+  document.getElementById('clear-confirm').style.display='flex';
+}
+function clearAllConfirmed(){
+  document.getElementById('clear-confirm').style.display='none';
+  objectives=[];
+  renderObjectives();
+  autoSave();
+}
+function clearAllCancelled(){
+  document.getElementById('clear-confirm').style.display='none';
+}
+
+/* ═══════════════════ AUTOSAVE ═══════════════════ */
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    try{
+      localStorage.setItem('blooms_objectives',JSON.stringify(objectives));
+      localStorage.setItem('blooms_course',JSON.stringify({
+        title:document.getElementById('course-title').value,
+        audience:document.getElementById('course-audience').value,
+        delivery:document.getElementById('delivery-mode').value,
+        date:document.getElementById('course-date').value,
+      }));
+      const b=document.getElementById('autosave-bar');
+      b.classList.add('show'); setTimeout(()=>b.classList.remove('show'),2500);
+    }catch(e){}
+  },600);
+}
+
+/* ═══════════════════ RESET FORM ═══════════════════ */
+function resetForm(){
+  document.getElementById('bloom-level').value='';
+  document.getElementById('obj-rest').value='';
+  selectedVerb='';
+  document.getElementById('level-desc').style.display='none';
+  document.getElementById('verb-group').style.display='none';
+  document.getElementById('composer-group').style.display='none';
+  document.getElementById('verb-tag-slot').innerHTML='';
+  document.getElementById('verb-chips').innerHTML='';
+}
+
+/* ═══════════════════ MODAL ═══════════════════ */
+function openExportModal(){
+  if(!objectives.length){
+    const btn = document.querySelector('[onclick="openExportModal()"]');
+    btn.textContent='⚠️ Add objectives first';
+    btn.style.background='#c0392b';
+    setTimeout(()=>{ btn.textContent='📄 Export PDF'; btn.style.background=''; },2500);
+    return;
+  }
+  document.getElementById('export-modal').classList.add('show');
+}
+function closeModal(){ document.getElementById('export-modal').classList.remove('show'); }
+document.getElementById('export-modal').addEventListener('click',function(e){ if(e.target===this)closeModal(); });
+
+/* ═══════════════════ PDF — pure browser print (no external library needed) ═══════════════════ */
+function fmtD(d){ try{ const[y,m,day]=d.split('-'); return `${parseInt(day)} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1]} ${y}`; }catch(e){return d||'';} }
+
+function generatePDF(){
+  closeModal();
+
+  const cTitle    = document.getElementById('course-title').value    || 'Untitled Course';
+  const cAudience = document.getElementById('course-audience').value || '';
+  const cDate     = document.getElementById('course-date').value     || '';
+  const cDelivery = document.getElementById('delivery-mode').value   || '';
+  const dlLabel   = {elearning:'E-Learning',classroom:'Classroom',virtual:'Virtual (Live Online)'}[cDelivery]||cDelivery;
+
+  const LVC = {1:'#c0392b',2:'#e67e22',3:'#b8960a',4:'#27ae60',5:'#2980b9',6:'#8e44ad'};
+
+  /* ── SVG pyramid ── */
+  function makePyramid(){
+    const lvs=['Create','Evaluate','Analyse','Apply','Understand','Remember'];
+    const cols=['#8e44ad','#2980b9','#27ae60','#b8960a','#e67e22','#c0392b'];
+    const W=500, slotH=36, gap=3, n=6;
+    const totalH=n*(slotH+gap);
+    let rows='';
+    lvs.forEach((l,i)=>{
+      const ratio=(i+1)/n;
+      const bw=W*ratio;
+      const bx=(W-bw)/2;
+      const by=i*(slotH+gap);
+      const tc=(i===3)?'#333':'#fff';
+      rows+=`<rect x="${bx}" y="${by}" width="${bw}" height="${slotH}" rx="4" fill="${cols[i]}"/>
+             <text x="${W/2}" y="${by+slotH/2+5}" text-anchor="middle" font-family="Inter,Helvetica,sans-serif" font-size="13" font-weight="700" fill="${tc}">${l}</text>`;
+    });
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${totalH}" width="420" height="210" style="display:block;margin:0 auto;">${rows}</svg>`;
+  }
+
+  /* ── Objective cards HTML ── */
+  function objCards(){
+    const PREFIX='By the end of this course, learners will be able to ';
+    return objectives.map((obj,i)=>{
+      const d=BLOOMS[obj.level];
+      const recs=(d.recs[obj.delivery]||[]).map(r=>`<li>${r}</li>`).join('');
+      const dl={elearning:'💻 E-Learning',classroom:'🏫 Classroom',virtual:'🖥️ Virtual'}[obj.delivery]||obj.delivery;
+      return `
+        <div class="obj-card" style="border-left:5px solid ${LVC[obj.level]};">
+          <div class="obj-header">
+            <span class="lbadge" style="background:${LVC[obj.level]}">L${obj.level} · ${d.name}</span>
+            <span class="dbadge">${dl}</span>
+            <span class="onum">#${i+1}</span>
+          </div>
+          <p class="obj-text">
+            <span class="pfx">By the end of this course, learners will be able to </span><strong class="vb" style="color:#840B55">${obj.verb}</strong><span> ${obj.rest}</span>
+          </p>
+          <div class="recs">
+            <p class="recs-title">Recommended Activities &amp; Exercises</p>
+            <ul>${recs}</ul>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  const html=`<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8"/>
+<title>Learning Objectives Report – ${cTitle}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  @page { size:A4; margin:18mm 18mm 18mm 18mm; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',Helvetica,Arial,sans-serif;color:#1a0a12;background:#fff;font-size:10pt;line-height:1.55;}
+  /* COVER */
+  .cover{background:linear-gradient(135deg,#840B55 0%,#5a0839 50%,#3a0225 100%);color:#fff;min-height:100vh;padding:50mm 20mm 30mm;display:flex;flex-direction:column;justify-content:center;page-break-after:always;position:relative;}
+  .cover-badge{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#f5c8e0;font-size:7pt;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:4px 14px;border-radius:100px;margin-bottom:16px;}
+  .cover h1{font-size:38pt;font-weight:900;letter-spacing:-0.03em;line-height:1.05;margin-bottom:10px;}
+  .cover h1 span{color:#f5c8e0;}
+  .cover-accent{width:55mm;height:3px;background:#B56D99;margin:12px 0 20px;}
+  .cover-sub{font-size:14pt;color:#f0c8e0;margin-bottom:24px;font-weight:400;}
+  .cover-meta{font-size:9pt;color:rgba(255,255,255,0.65);line-height:2;}
+  .cover-meta strong{color:rgba(255,255,255,0.85);}
+  .cover-pyramid{margin-top:30px;}
+  .cover-footer{position:absolute;bottom:12mm;left:20mm;right:20mm;font-size:7.5pt;color:rgba(255,255,255,0.4);text-align:center;}
+  /* SECTION PAGES */
+  .section-hdr{background:#840B55;color:#fff;padding:9px 18px;font-size:10pt;font-weight:700;margin:-18mm -18mm 18px -18mm;display:flex;justify-content:space-between;align-items:center;}
+  .section-hdr span{font-size:8pt;font-weight:400;opacity:0.8;}
+  /* WHY PAGE */
+  .why-page{page-break-before:always;}
+  .intro-text{font-size:9.5pt;color:#3a1a2e;margin-bottom:18px;line-height:1.65;}
+  .why-h{font-size:11.5pt;font-weight:800;color:#840B55;margin-bottom:12px;}
+  .why-card{background:#fdf6fa;border-radius:8px;padding:12px 14px 12px 18px;border-left:4px solid #840B55;margin-bottom:10px;}
+  .why-card h3{font-size:9.5pt;font-weight:700;color:#840B55;margin-bottom:4px;}
+  .why-card p{font-size:8.5pt;color:#6b3a58;line-height:1.6;}
+  /* OBJECTIVES PAGE */
+  .obj-page{page-break-before:always;}
+  .course-strip{background:#fdf6fa;border-radius:6px;padding:7px 12px;margin-bottom:14px;font-size:8.5pt;color:#6b3a58;}
+  .obj-card{background:#fdf6fa;border-radius:8px;border-left:5px solid #840B55;margin-bottom:12px;overflow:hidden;page-break-inside:avoid;}
+  .obj-header{display:flex;align-items:center;gap:8px;padding:8px 12px 6px;border-bottom:1px solid #e0b8d0;flex-wrap:wrap;}
+  .lbadge{font-size:7pt;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border-radius:100px;color:#fff;}
+  .dbadge{font-size:7pt;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:2px 8px;border-radius:100px;background:#fff;color:#840B55;border:1px solid #e0b8d0;}
+  .onum{font-size:7.5pt;font-weight:600;color:#6b3a58;margin-left:auto;}
+  .obj-text{padding:9px 12px 6px;font-size:9.5pt;line-height:1.6;}
+  .pfx{color:#6b3a58;}
+  .vb{color:#840B55;font-weight:800;}
+  .recs{background:#fff;margin:0 12px 10px;border-radius:6px;border:1px solid #e0b8d0;padding:8px 12px;}
+  .recs-title{font-size:7.5pt;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#B56D99;margin-bottom:6px;}
+  .recs ul{list-style:none;padding:0;}
+  .recs li{font-size:8.5pt;color:#6b3a58;padding:2px 0 2px 14px;position:relative;line-height:1.5;}
+  .recs li::before{content:'→';position:absolute;left:0;color:#B56D99;font-weight:700;}
+  .footer-note{font-size:7pt;color:#c4a0b5;text-align:center;margin-top:10px;}
+  @media print{
+    .cover{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .section-hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .lbadge{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .obj-card{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .why-card{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-badge">Learning Design Tool</div>
+  <h1>Learning<br>Objectives<br><span>Report</span></h1>
+  <div class="cover-accent"></div>
+  <div class="cover-sub">${cTitle}</div>
+  <div class="cover-meta">
+    ${cAudience?`<div><strong>Audience:</strong> ${cAudience}</div>`:''}
+    ${dlLabel?`<div><strong>Delivery Mode:</strong> ${dlLabel}</div>`:''}
+    ${cDate?`<div><strong>Date:</strong> ${fmtD(cDate)}</div>`:''}
+    <div><strong>Total Objectives:</strong> ${objectives.length}</div>
+  </div>
+  <div class="cover-pyramid">${makePyramid()}</div>
+  <div class="cover-footer">Bloom's Taxonomy Builder &nbsp;·&nbsp; Learning Design Tool</div>
+</div>
+
+<!-- WHAT IS BLOOM'S -->
+<div class="why-page">
+  <div class="section-hdr">What is Bloom's Taxonomy? <span>Page 2</span></div>
+  <p class="intro-text">Bloom's Taxonomy is a framework developed by educational psychologist Benjamin Bloom in 1956, revised in 2001. It organises learning into six levels of cognitive complexity — from remembering basic facts to creating new original work. Using Bloom's helps ensure that learning objectives are clear, measurable, and aligned to the right level of thinking for your audience.</p>
+  <p class="why-h">Why It Matters for Your Organisation</p>
+  <div class="why-card"><h3>For Business Owners</h3><p>Clear objectives mean you can measure whether training has achieved its business goals. Every learning investment becomes justifiable and trackable.</p></div>
+  <div class="why-card"><h3>For Subject Matter Experts (SMEs)</h3><p>Bloom's Taxonomy translates deep expertise into teachable, testable learning goals that match how people actually progress through new knowledge.</p></div>
+  <div class="why-card"><h3>For L&amp;D Teams</h3><p>It provides a shared language with stakeholders, guides the design of activities and assessments, and ensures content matches the expected level of performance.</p></div>
+</div>
+
+<!-- OBJECTIVES -->
+<div class="obj-page">
+  <div class="section-hdr">Learning Objectives &amp; Recommendations <span>Page 3</span></div>
+  <div class="course-strip"><strong>Course:</strong> ${cTitle}${dlLabel?' &nbsp;·&nbsp; <strong>Delivery:</strong> '+dlLabel:''}</div>
+  ${objCards()}
+  <p class="footer-note">Bloom's Taxonomy Builder &nbsp;·&nbsp; youtube.com/watch?v=ksqNcBhDNXA</p>
+</div>
+
+</body>
+</html>`;
+
+  /* Open in a new window and trigger the browser's native Print → Save as PDF */
+  const win = window.open('','_blank','width=900,height=700');
+  if(!win){
+    alert('Your browser blocked the pop-up. Please allow pop-ups for this page and try again. In most browsers you will see a small icon in the address bar to allow it.');
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  win.onload = function(){
+    setTimeout(()=>{ win.focus(); win.print(); }, 600);
+  };
+}
+</script>
+</body>
+</html>
